@@ -2,6 +2,8 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const gameOverDiv = document.getElementById('gameOver');
 const restartBtn = document.getElementById('restartBtn');
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
 
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
@@ -86,14 +88,41 @@ function gameOver() {
     cancelAnimationFrame(animationId);
 }
 
-// Controls
+function turnLeft() {
+    if (gameRunning) {
+        worm.angle -= TURN_ANGLE;
+    }
+}
+
+function turnRight() {
+    if (gameRunning) {
+        worm.angle += TURN_ANGLE;
+    }
+}
+
+// Keyboard Controls
 window.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
     if (e.key === 'ArrowLeft' || e.key === 'a') {
-        worm.angle -= TURN_ANGLE;
+        turnLeft();
     } else if (e.key === 'ArrowRight' || e.key === 'd') {
-        worm.angle += TURN_ANGLE;
+        turnRight();
     }
+});
+
+// Touch/Click Controls
+leftBtn.addEventListener('click', turnLeft);
+rightBtn.addEventListener('click', turnRight);
+
+// Touch events for mobile
+leftBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    turnLeft();
+});
+
+rightBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    turnRight();
 });
 
 restartBtn.addEventListener('click', resetGame);

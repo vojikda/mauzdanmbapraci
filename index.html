@@ -5,10 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Achtung, die Kurve!</title>
     <style>
-        body { background: #222; color: #fff; display: flex; flex-direction: column; align-items: center; }
-        canvas { background: #111; margin-top: 40px; border: 2px solid #fff; }
-        #gameOver { display: none; font-size: 2em; margin-top: 20px; }
-        #restartBtn { display: none; margin-top: 10px; padding: 10px 20px; font-size: 1em; }
+        body { 
+            background: #222; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        canvas { 
+            background: #111; 
+            margin-top: 20px; 
+            border: 2px solid #fff; 
+            max-width: 100%;
+            height: auto;
+        }
+        #gameOver { 
+            display: none; 
+            font-size: 2em; 
+            margin-top: 20px; 
+            color: #ff4444;
+        }
+        #restartBtn { 
+            display: none; 
+            margin-top: 10px; 
+            padding: 15px 30px; 
+            font-size: 1.2em; 
+            background: #0ff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #restartBtn:hover {
+            background: #00cccc;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .control-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 255, 255, 0.3);
+            border: 3px solid #0ff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        .control-btn:active {
+            background: rgba(0, 255, 255, 0.6);
+            transform: scale(0.95);
+        }
+        #instructions {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -16,6 +84,13 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div id="gameOver">Game Over!</div>
     <button id="restartBtn">Restart</button>
+    <div id="controls">
+        <button class="control-btn" id="leftBtn">←</button>
+        <button class="control-btn" id="rightBtn">→</button>
+    </div>
+    <div id="instructions">
+        Use arrow keys or tap the buttons to control the worm
+    </div>
     <script src="main.js"></script>
 </body>
 </html> 
