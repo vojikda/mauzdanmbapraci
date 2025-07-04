@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const WIDTH = canvas.width;
     const HEIGHT = canvas.height;
     const WORM_RADIUS = 4;
-    const SPEED = 2.5;
-    const TURN_ANGLE = Math.PI / 32;
+    const SPEED = 2.0;
+    const TURN_ANGLE = Math.PI / 21.33;
 
     let gameRunning = true;
     let animationId;
