@@ -6,6 +6,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const restartBtn = document.getElementById('restartBtn');
     const leftBtn = document.getElementById('leftBtn');
     const rightBtn = document.getElementById('rightBtn');
+    const roundInfo = document.getElementById('roundInfo');
+    const resultsPage = document.getElementById('resultsPage');
+    const newGameBtn = document.getElementById('newGameBtn');
+
+    // Score elements
+    const scoreElements = [
+        document.getElementById('score1'),
+        document.getElementById('score2'),
+        document.getElementById('score3'),
+        document.getElementById('score4')
+    ];
+    const finalScoreElements = [
+        document.getElementById('finalScore1'),
+        document.getElementById('finalScore2'),
+        document.getElementById('finalScore3'),
+        document.getElementById('finalScore4')
+    ];
+    const winnersList = document.getElementById('winnersList');
 
     // Debug: Check if buttons are found
     console.log('Left button found:', leftBtn);
@@ -16,9 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const WORM_RADIUS = 4;
     const SPEED = 2.0;
     const TURN_ANGLE = Math.PI / 21.33;
+    const TOTAL_ROUNDS = 20;
 
     let gameRunning = true;
     let animationId;
+    let currentRound = 1;
+    let scores = [0, 0, 0, 0]; // Player scores
+    let roundWinners = []; // Track winners of each round
 
     // 4 players with different colors and starting positions
     let players = [
@@ -64,7 +86,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    function resetGame() {
+    function updateScoreboard() {
+        for (let i = 0; i < 4; i++) {
+            scoreElements[i].textContent = scores[i];
+        }
+        roundInfo.textContent = `Round ${currentRound} of ${TOTAL_ROUNDS}`;
+    }
+
+    function resetRound() {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         players = [
             {
@@ -185,10 +214,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Check if game is over (only one or no players left)
+        // Check if round is over (only one or no players left)
         let aliveCount = players.filter(p => p.alive).length;
         if (aliveCount <= 1) {
-            gameOver();
+            roundOver();
             return;
         }
 
@@ -202,16 +231,78 @@ document.addEventListener('DOMContentLoaded', function() {
         animationId = requestAnimationFrame(loop);
     }
 
-    function gameOver() {
+    function roundOver() {
         gameRunning = false;
         let alivePlayers = players.filter(p => p.alive);
-        let winnerText = alivePlayers.length === 1 ? 
-            `Player ${alivePlayers[0].id} wins!` : 
-            "Game Over - It's a tie!";
+        let winnerText = "";
+        
+        if (alivePlayers.length === 1) {
+            let winner = alivePlayers[0];
+            winnerText = `Player ${winner.id} wins Round ${currentRound}!`;
+            scores[winner.id - 1]++;
+            roundWinners.push(winner.id);
+        } else {
+            winnerText = `Round ${currentRound} - It's a tie!`;
+            roundWinners.push(0); // 0 indicates a tie
+        }
+        
         gameOverDiv.textContent = winnerText;
         gameOverDiv.style.display = 'block';
+        updateScoreboard();
+        
+        if (currentRound >= TOTAL_ROUNDS) {
+            restartBtn.textContent = "View Results";
+        } else {
+            restartBtn.textContent = "Next Round";
+        }
         restartBtn.style.display = 'inline-block';
         cancelAnimationFrame(animationId);
+    }
+
+    function showResults() {
+        // Update final scores
+        for (let i = 0; i < 4; i++) {
+            finalScoreElements[i].textContent = scores[i];
+        }
+
+        // Find winners
+        let maxScore = Math.max(...scores);
+        let winners = [];
+        for (let i = 0; i < 4; i++) {
+            if (scores[i] === maxScore) {
+                winners.push(i + 1);
+            }
+        }
+
+        // Display winners
+        winnersList.innerHTML = "";
+        if (winners.length === 1) {
+            winnersList.innerHTML = `<div class="winner-item">🏆 Player ${winners[0]} wins the tournament! 🏆</div>`;
+        } else {
+            winnersList.innerHTML = `<div class="winner-item">🏆 It's a tie! Players ${winners.join(', ')} share the victory! 🏆</div>`;
+        }
+
+        // Show round-by-round results
+        let roundResults = "<h4>Round Results:</h4>";
+        for (let i = 0; i < roundWinners.length; i++) {
+            if (roundWinners[i] === 0) {
+                roundResults += `<div>Round ${i + 1}: Tie</div>`;
+            } else {
+                roundResults += `<div>Round ${i + 1}: Player ${roundWinners[i]}</div>`;
+            }
+        }
+        winnersList.innerHTML += roundResults;
+
+        resultsPage.style.display = 'flex';
+    }
+
+    function startNewTournament() {
+        currentRound = 1;
+        scores = [0, 0, 0, 0];
+        roundWinners = [];
+        resultsPage.style.display = 'none';
+        updateScoreboard();
+        resetRound();
     }
 
     function turnPlayer(playerId, direction) {
@@ -291,11 +382,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (restartBtn) {
-        restartBtn.addEventListener('click', resetGame);
+        restartBtn.addEventListener('click', () => {
+            if (currentRound >= TOTAL_ROUNDS) {
+                showResults();
+            } else {
+                currentRound++;
+                resetRound();
+            }
+        });
     } else {
         console.error('Restart button not found!');
     }
 
+    if (newGameBtn) {
+        newGameBtn.addEventListener('click', startNewTournament);
+    } else {
+        console.error('New game button not found!');
+    }
+
     // Start the game
-    resetGame();
+    updateScoreboard();
+    resetRound();
 }); 
