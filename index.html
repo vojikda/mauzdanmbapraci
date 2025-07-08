@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Achtung, die Kurve!</title>
+    <title>Kurva pro 3066 - 4 Players</title>
     <style>
         body { 
             background: #666; 
@@ -76,11 +76,28 @@
             margin-top: 10px;
             font-size: 0.9em;
             color: #ccc;
+            max-width: 600px;
         }
+        .player-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.8em;
+        }
+        .player-control {
+            padding: 5px;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .player1 { background: rgba(255, 0, 0, 0.3); }
+        .player2 { background: rgba(0, 255, 0, 0.3); }
+        .player3 { background: rgba(0, 0, 255, 0.3); }
+        .player4 { background: rgba(255, 255, 0, 0.3); color: #000; }
     </style>
 </head>
 <body>
-    <h1>Kurva pro 3066</h1>
+    <h1>Kurva pro 3066 - 4 Players</h1>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div id="gameOver">Game Over!</div>
     <button id="restartBtn">Restart</button>
@@ -89,7 +106,14 @@
         <button class="control-btn" id="rightBtn">→</button>
     </div>
     <div id="instructions">
-        Use arrow keys or tap the buttons to control the worm
+        <strong>Controls:</strong><br>
+        <div class="player-controls">
+            <div class="player-control player1">Player 1 (Red): A / D</div>
+            <div class="player-control player2">Player 2 (Green): J / L</div>
+            <div class="player-control player3">Player 3 (Blue): ← / →</div>
+            <div class="player-control player4">Player 4 (Yellow): N / M</div>
+        </div>
+        <br>Mobile: Use the buttons below to control Player 1
     </div>
     <script src="main.js"></script>
 </body>
