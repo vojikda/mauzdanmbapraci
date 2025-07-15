@@ -336,6 +336,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawWorm(player) {
+        // Draw the trail first (behind the worm)
+        if (player.trail.length > 1) {
+            ctx.strokeStyle = player.color;
+            ctx.lineWidth = WORM_RADIUS * 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(player.trail[0].x, player.trail[0].y);
+            for (let i = 1; i < player.trail.length; i++) {
+                ctx.lineTo(player.trail[i].x, player.trail[i].y);
+            }
+            ctx.stroke();
+        }
+
+        // Draw the worm head
         ctx.beginPath();
         ctx.arc(player.x, player.y, WORM_RADIUS, 0, 2 * Math.PI);
         ctx.fillStyle = player.color;
