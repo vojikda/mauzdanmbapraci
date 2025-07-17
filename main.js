@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let scores = [0, 0, 0, 0];
     let roundWinners = [];
     let selectedGameMode = 'survival';
+    let selectedPlayerCount = 4;
     let currentSpeed = BASE_SPEED;
     let speedIncreaseTimer = 0;
     let particles = [];
@@ -114,6 +115,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
+    function createPlayers(playerCount) {
+        const playerConfigs = [
+            { x: WIDTH * 0.25, y: HEIGHT * 0.25, angle: 0, color: '#ff0000', keys: { left: 'a', right: 'd' }, team: 1 },
+            { x: WIDTH * 0.75, y: HEIGHT * 0.25, angle: Math.PI, color: '#00ff00', keys: { left: 'j', right: 'l' }, team: 1 },
+            { x: WIDTH * 0.25, y: HEIGHT * 0.75, angle: Math.PI / 2, color: '#0000ff', keys: { left: 'ArrowLeft', right: 'ArrowRight' }, team: 2 },
+            { x: WIDTH * 0.75, y: HEIGHT * 0.75, angle: -Math.PI / 2, color: '#ffff00', keys: { left: 'n', right: 'm' }, team: 2 }
+        ];
+
+        let newPlayers = [];
+        for (let i = 0; i < playerCount; i++) {
+            const config = playerConfigs[i];
+            newPlayers.push({
+                id: i + 1,
+                x: config.x,
+                y: config.y,
+                angle: config.angle,
+                trail: [],
+                color: config.color,
+                keys: config.keys,
+                alive: true,
+                speed: BASE_SPEED,
+                powerups: {},
+                team: config.team
+            });
+        }
+        return newPlayers;
+    }
+
     // Game Mode Selection
     const modeCards = document.querySelectorAll('.mode-card');
     modeCards.forEach(card => {
@@ -124,6 +153,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Player Count Selection
+    const playerCountBtns = document.querySelectorAll('.player-count-btn');
+    playerCountBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            playerCountBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedPlayerCount = parseInt(btn.dataset.players);
+        });
+    });
+
     startGameBtn.addEventListener('click', () => {
         modeSelection.style.display = 'none';
         initializeGameMode();
@@ -131,7 +170,36 @@ document.addEventListener('DOMContentLoaded', function() {
         resetRound();
     });
 
+    function updatePlayerControls() {
+        const playerControls = document.getElementById('playerControls');
+        const controlElements = playerControls.querySelectorAll('.player-control');
+        
+        // Show/hide control elements based on player count
+        controlElements.forEach((element, index) => {
+            if (index < selectedPlayerCount) {
+                element.style.display = 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        });
+    }
+
     function initializeGameMode() {
+        // Initialize scores array based on player count
+        scores = new Array(selectedPlayerCount).fill(0);
+        
+        // Update teams based on player count
+        if (selectedPlayerCount === 2) {
+            teams = [[1], [2]];
+        } else if (selectedPlayerCount === 3) {
+            teams = [[1], [2], [3]];
+        } else {
+            teams = [[1, 2], [3, 4]];
+        }
+        
+        // Update displayed controls
+        updatePlayerControls();
+        
         switch(selectedGameMode) {
             case 'survival':
                 powerupInfo.style.display = 'none';
@@ -161,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initializeTerritories() {
         territories = [];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < selectedPlayerCount; i++) {
             territories.push({
                 player: i + 1,
                 area: 0,
@@ -263,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateScoreboard() {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < selectedPlayerCount; i++) {
             scoreElements[i].textContent = scores[i];
         }
         roundInfo.textContent = `Round ${currentRound} of ${TOTAL_ROUNDS} - ${selectedGameMode.charAt(0).toUpperCase() + selectedGameMode.slice(1)} Mode`;
@@ -274,60 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
         particles = [];
         powerups = [];
         
-        players = [
-            {
-                id: 1,
-                x: WIDTH * 0.25,
-                y: HEIGHT * 0.25,
-                angle: 0,
-                trail: [],
-                color: '#ff0000',
-                keys: { left: 'a', right: 'd' },
-                alive: true,
-                speed: BASE_SPEED,
-                powerups: {},
-                team: 1
-            },
-            {
-                id: 2,
-                x: WIDTH * 0.75,
-                y: HEIGHT * 0.25,
-                angle: Math.PI,
-                trail: [],
-                color: '#00ff00',
-                keys: { left: 'j', right: 'l' },
-                alive: true,
-                speed: BASE_SPEED,
-                powerups: {},
-                team: 1
-            },
-            {
-                id: 3,
-                x: WIDTH * 0.25,
-                y: HEIGHT * 0.75,
-                angle: Math.PI / 2,
-                trail: [],
-                color: '#0000ff',
-                keys: { left: 'ArrowLeft', right: 'ArrowRight' },
-                alive: true,
-                speed: BASE_SPEED,
-                powerups: {},
-                team: 2
-            },
-            {
-                id: 4,
-                x: WIDTH * 0.75,
-                y: HEIGHT * 0.75,
-                angle: -Math.PI / 2,
-                trail: [],
-                color: '#ffff00',
-                keys: { left: 'n', right: 'm' },
-                alive: true,
-                speed: BASE_SPEED,
-                powerups: {},
-                team: 2
-            }
-        ];
+        players = createPlayers(selectedPlayerCount);
         
         gameRunning = true;
         gameOverDiv.style.display = 'none';
@@ -586,13 +601,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showResults() {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < selectedPlayerCount; i++) {
             finalScoreElements[i].textContent = scores[i];
         }
 
         let maxScore = Math.max(...scores);
         let winners = [];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < selectedPlayerCount; i++) {
             if (scores[i] === maxScore) {
                 winners.push(i + 1);
             }
@@ -620,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function startNewTournament() {
         currentRound = 1;
-        scores = [0, 0, 0, 0];
+        scores = new Array(selectedPlayerCount).fill(0);
         roundWinners = [];
         resultsPage.style.display = 'none';
         modeSelection.style.display = 'flex';
@@ -648,21 +663,21 @@ document.addEventListener('DOMContentLoaded', function() {
             turnPlayer(1, 'right');
         }
         // Player 2: J/L
-        else if (e.key === 'j') {
+        else if (e.key === 'j' && selectedPlayerCount >= 2) {
             turnPlayer(2, 'left');
-        } else if (e.key === 'l') {
+        } else if (e.key === 'l' && selectedPlayerCount >= 2) {
             turnPlayer(2, 'right');
         }
         // Player 3: Arrow Keys
-        else if (e.key === 'ArrowLeft') {
+        else if (e.key === 'ArrowLeft' && selectedPlayerCount >= 3) {
             turnPlayer(3, 'left');
-        } else if (e.key === 'ArrowRight') {
+        } else if (e.key === 'ArrowRight' && selectedPlayerCount >= 3) {
             turnPlayer(3, 'right');
         }
         // Player 4: N/M
-        else if (e.key === 'n') {
+        else if (e.key === 'n' && selectedPlayerCount >= 4) {
             turnPlayer(4, 'left');
-        } else if (e.key === 'm') {
+        } else if (e.key === 'm' && selectedPlayerCount >= 4) {
             turnPlayer(4, 'right');
         }
         // Power-up keys (for power-up mode)
